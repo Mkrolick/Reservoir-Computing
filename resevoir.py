@@ -1,11 +1,13 @@
 import numpy as np
 
 
+
+
 # Echo State Network class!
 # Uses teacher forcing to align network output with desired output
 
 class Resevoir:
-    def __init__(self, input_size = 1, output_size = 1, resevoir_size = 1, spectral_radius = 0.95, sparsity = 0.1, input_function = "linear", seed = 42):
+    def __init__(self, input_size = 1, output_size = 1, resevoir_size = 20, spectral_radius = 0.95, sparsity = 0.1, input_function = "linear", seed = 42):
         
         # Set Seed
         np.random.seed(seed)
