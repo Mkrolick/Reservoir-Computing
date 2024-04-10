@@ -48,7 +48,7 @@ class Resevoir:
         self.states = []
         self.outputs = []
 
-        # Setup input function # need error checking
+        # Setup input function 
         self.input_function = input_function
 
     def predict(self, input, force=False, output_override = None):
@@ -71,7 +71,8 @@ class Resevoir:
             temp_state = np.dot(self.weight_matrix, self.state[2:]) + np.dot(self.input_weight_matrix, input) #+ np.dot(self.feedback_weight_matrix, self.output)
         else:
             temp_state = np.dot(self.weight_matrix, self.state[2:]) + np.dot(self.input_weight_matrix, input) #+ np.dot(self.feedback_weight_matrix, output_override)
-
+        
+        # Apply Activation Function
         if self.input_function == "linear":
             self.state = temp_state
         elif self.input_function == "tanh":
@@ -86,7 +87,6 @@ class Resevoir:
             
         # add state to states
         # make state a column vector by suming values
-        # FIGURE OUT IF COLUMN OR ROW
         self.state = np.sum(self.state, axis = 1).reshape((self.resevoir_size, 1))
 
         # add input to state
@@ -98,18 +98,16 @@ class Resevoir:
         # y(n) = W_out * x(n) 
 
         self.output = np.zeros((self.output_size, 1))
-        
         for index, matricies in enumerate(self.output_weight_matricies):
             self.output[index] = np.dot(matricies, self.state)
-
+        
+        #  add output to outputs
         self.outputs.append(self.output)
 
+        # return squeezed output for clarity in reading
         return np.squeeze(self.output)
 
-    def backpropagate(self, inputs, outputs):
-        
-        # As W_fb != 0
-        # We can backpropagate through the resevoir
+    def train(self, inputs, outputs):
         
         # Generate System States
         self.states = []
@@ -120,15 +118,14 @@ class Resevoir:
         for i in range(inputs.shape[0]):
             self.predict(inputs[i], force = True, output_override = outputs[i])
 
-        #remove the first value for teacher signal
-        desired_output = outputs[1:]
-        
 
         # The desired output weights Wout are the linear regression weights of the desired outputs d(n) on the harvested extended states z(n)
         # A mathematically straightforward way to compute Wout is to invoke the pseudoinverse (denoted by ⋅†) of S : Wout = D†Z
 
-        self.output_weight_matricies = np.dot(np.linalg.pinv(np.concatenate(self.states, axis = 1)).T, desired_output).T
+        self.output_weight_matricies = np.dot(np.linalg.pinv(np.concatenate(self.states, axis = 1)).T, outputs).T
 
+        # clear internal states
+        resevoir.clear_states()
 
     def clear_states(self):
 
@@ -144,8 +141,6 @@ class Resevoir:
 
         # Set output weight matricies
         self.output_weight_matricies = output_matricies
-
-
         
 if __name__ == "__main__":
 
@@ -158,14 +153,12 @@ if __name__ == "__main__":
 
     # Set up training data
     X_train = np.array([[1,2],[4,2],[1,2],[4,2],[1,2],[4,2]])
-    Y_pred = np.array([[6,6,6], [3,6,9],[6,6,6],[3,6,9],[6,6,6],[3,6,9],[6,6,6]])
+    Y_pred = np.array([[3,6,9],[6,6,6],[3,6,9],[6,6,6],[3,6,9],[6,6,6]])
 
     # Train Resevoir
-    resevoir.backpropagate(X_train, Y_pred)
+    resevoir.train(X_train, Y_pred)
 
-    # Predict
-    resevoir.clear_states()
-
+    # It works!
     print("input: [1,2],",resevoir.predict(np.array([1,2])))
     print("input: [4,2],", resevoir.predict(np.array([4,2])))
     
