@@ -26,9 +26,9 @@ class Resevoir:
         # Generates weight matrix from -1 to 1 uniformly for weight matrix
 
         self.input_weight_matrix = np.random.uniform(-1, 1, (resevoir_size, input_size)) # Size (N, k)
-        self.weight_matrix = np.random.uniform(-10, 10, (resevoir_size, resevoir_size)) # Size (N, N)
-        self.feedback_weight_matrix = np.random.uniform(-2, 2, (resevoir_size, output_size)) # Size (N, O)
-        self.output_weight_matricies = np.array([np.random.uniform(-2, 2, (input_size + resevoir_size)) for i in range(output_size)]) # Size (O, k+N)
+        self.weight_matrix = np.random.uniform(-1, 1, (resevoir_size, resevoir_size)) # Size (N, N)
+        self.feedback_weight_matrix = np.random.uniform(-1, 1, (resevoir_size, output_size)) # Size (N, O)
+        self.output_weight_matricies = np.array([np.random.uniform(-1, 1, (input_size + resevoir_size)) for i in range(output_size)]) # Size (O, k+N)
         
         # set sparsity of the matrix & set spectral radius (needed to help with stability)
         self.weight_matrix[np.random.rand(resevoir_size, resevoir_size) > sparsity] = 0 # for larger scale implementations use C++ and sparse matrices (hash map + set)
