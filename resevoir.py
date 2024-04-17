@@ -53,7 +53,7 @@ class Resevoir:
         # Setup input function 
         self.input_function = input_function
 
-    def predict(self, input, force=False, output_override = None):
+    def predict(self, input, force=False, output_override = None, start = False, intialize = []):
 
         # Update Resevoir
         input = np.array(input).reshape((self.input_size, 1))
@@ -69,10 +69,16 @@ class Resevoir:
         # W_fb is the feedback weight matrix
         # y(n) is the output at time step n
 
-        if not force:
-            temp_state = np.dot(self.weight_matrix, self.state[2:]) + np.dot(self.input_weight_matrix, input) #+ np.dot(self.feedback_weight_matrix, self.output)
+        if not force and not start:
+
+            temp_state = np.dot(self.weight_matrix, self.state[2:]) + np.dot(self.input_weight_matrix, input) + np.dot(self.feedback_weight_matrix, self.output)
+            #print("output", self.output)
+        elif start:
+            temp_state = np.dot(self.weight_matrix, self.state[2:]) + np.dot(self.input_weight_matrix, input) + np.dot(self.feedback_weight_matrix, intialize)
+            #print("intialize", intialize)
         else:
-            temp_state = np.dot(self.weight_matrix, self.state[2:]) + np.dot(self.input_weight_matrix, input) #+ np.dot(self.feedback_weight_matrix, output_override)
+            temp_state = np.dot(self.weight_matrix, self.state[2:]) + np.dot(self.input_weight_matrix, input) + np.dot(self.feedback_weight_matrix, output_override)
+            #print("override", output_override)
         
         # Apply Activation Function
         if self.input_function == "linear":
@@ -102,7 +108,8 @@ class Resevoir:
         self.output = np.zeros((self.output_size, 1))
         for index, matricies in enumerate(self.output_weight_matricies):
             self.output[index] = np.dot(matricies, self.state)
-        
+
+
         #  add output to outputs
         self.outputs.append(self.output)
 
@@ -161,8 +168,9 @@ if __name__ == "__main__":
     resevoir.train(X_train, Y_pred)
 
     # It works!
-    print("input: [1,2],",resevoir.predict(np.array([1,2])))
+    print("input: [1,2],",resevoir.predict(np.array([1,2]), start = True, intialize = [3,6,9]))
     print("input: [4,2],", resevoir.predict(np.array([4,2])))
+    print("input: [1,2],",resevoir.predict(np.array([1,2])))
     
 
 
